@@ -13,8 +13,9 @@ RTC_DS3231 RTC;
 
 const int trigPin = 9; 
 const int echoPin = 10;
-long duration;
-int distance;
+long durationfront, durationleft, durationright;
+int distancefront, distanceleft, distanceright;
+
 
 /*//////////////////*/
 
@@ -33,6 +34,26 @@ int forwardB = 5;
 int speedPinB = 7;
 
 /*//////////////////////////*/
+void clock();
+void clock(){
+  RTC.begin();
+  //RTC.adjust(DateTime(__DATE__, __TIME__)); /*เอาไว้ตั้งเวลาใหม่*/
+  DateTime now = RTC.now();
+   lcd.setCursor(0,0);
+  lcd.print("Date: ");
+  lcd.print(now.year(), DEC);
+  lcd.print('/');
+  lcd.print(now.month(), DEC);
+  lcd.print('/');
+  lcd.print(now.day(), DEC);
+  lcd.setCursor(0,1);
+  lcd.print("Time: ");
+  lcd.print(now.hour(), DEC);
+  lcd.print(':');
+  lcd.print(now.minute(), DEC);
+  lcd.print(':');
+  lcd.print(now.second(), DEC);
+  }
 
 
 void setup () {
@@ -77,55 +98,25 @@ pinMode(speedPinB,OUTPUT);
 }
 
 void loop () {
-  DateTime now = RTC.now();
-   lcd.setCursor(0,0);
-  lcd.print("Date: ");
-  lcd.print(now.year(), DEC);
-  lcd.print('/');
-  lcd.print(now.month(), DEC);
-  lcd.print('/');
-  lcd.print(now.day(), DEC);
-  lcd.setCursor(0,1);
-  lcd.print("Time: ");
-  lcd.print(now.hour(), DEC);
-  lcd.print(':');
-  lcd.print(now.minute(), DEC);
-  lcd.print(':');
-  lcd.print(now.second(), DEC);
-  
+  clock();
   if (RTC.checkIfAlarm(1)){
     while(1){
-      DateTime now = RTC.now();
-  lcd.setCursor(0,0);
-  lcd.print("Date: ");
-  lcd.print(now.year(), DEC);
-  lcd.print('/');
-  lcd.print(now.month(), DEC);
-  lcd.print('/');
-  lcd.print(now.day(), DEC);
-  lcd.setCursor(0,1);
-  lcd.print("Time: ");
-  lcd.print(now.hour(), DEC);
-  lcd.print(':');
-  lcd.print(now.minute(), DEC);
-  lcd.print(':');
-  lcd.print(now.second(), DEC);
-      /*sonic+motor*/
-  // Clears the trigPin
+  clock();
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
-  // Sets the trigPin on HIGH state for 10 micro seconds
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
-  // Reads the echoPin, returns the sound wave travel time in microseconds
-  duration = pulseIn(echoPin, HIGH);
-  // Calculating the distance
-  distance= duration*0.034/2;
-  Serial.print(distance);
-    /*sonic+motor*/
-    Serial.print("a");
-    if (distance > 60)
+  durationfront = pulseIn(echoPin, HIGH);
+  distancefront= durationfront*0.034/2;
+  
+  durationleft = pulseIn(echoPin, HIGH);
+  distanceleft= distanceleft*0.034/2;
+  
+  durationright = pulseIn(echoPin, HIGH);
+  distanceright= distanceright*0.034/2;
+
+    if (distancefront > 70)
   {
   // Motor A
 
@@ -141,8 +132,9 @@ void loop () {
     digitalWrite(forwardB, HIGH);
   }
 
-   if (distance <= 60)
+   if (distancefront <= 70)
   {
+    if (distanceleft > distanceright){
       // Motor A
 
     analogWrite(speedPinA, 255);
@@ -150,12 +142,25 @@ void loop () {
     digitalWrite(forwardA, LOW);
 
 
-  // Motor B
+      // Motor B
 
     analogWrite(speedPinB, 255);
     digitalWrite(backwardB, LOW);
     digitalWrite(forwardB, HIGH);
   }
+   if (distanceright > distanceleft){
+    analogWrite(speedPinA, 255);
+    digitalWrite(backwardA, LOW);
+    digitalWrite(forwardA, HIGH);
+
+
+      // Motor B
+
+    analogWrite(speedPinB, 255);
+    digitalWrite(backwardB, HIGH);
+    digitalWrite(forwardB, LOW);
+    }
+   }
     delay(400);
 }
 }

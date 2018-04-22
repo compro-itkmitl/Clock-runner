@@ -5,158 +5,125 @@
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 RTC_DS3231 RTC;
 
-/*////////////////////*/
+// ตั้งค่าตัวแปล buzzer เป็ น pin 13
 
-/*ตั้งชื่อ PIN ให้จำได้*/
+const int buzzer = 13;
 
-//ของultrasonic
+// เซ็ต pin ultrasound
 
-const int trigPin = 9; 
-const int echoPin = 10;
+const int trig = 9; 
+const int echo = 10;
 long duration;
 int distance;
 
-/*//////////////////*/
+// เซ็ต pin มอเตอร์
 
-/*//////////////////*/
+int backwardA = 2; // ล้อ A ไปข้างหลัง
+int forwardA = 3; // ล้อ A ไปข้างหน้า
+int speedPinA = 6; //ความเร็วล้อ A
+int backwardB = 4; // ล้อ B ไปข้างหลัง
+int forwardB = 5; // ล้อ B ไปข้างหน้า
+int speedPinB = 7; //ความเร็วล้อ B
 
-//ของมอเตอร์
 
-// Motor A
-
-int backwardA = 2;
-int forwardA = 3;
-int speedPinA = 6;
-// Motor B
-int backwardB = 4;
-int forwardB = 5;
-int speedPinB = 7;
-
-/*///////////////////*/
-//ลำโพง
-/*///////////////////*/
-const int buzzer = 13;
-void timer(DateTime now);
+void timer(DateTime now); //ประกาศสร้างฟังก์ชั่นเพื่อ print เวลากับวันที่ ท่ LCD
 
 
 void setup () {
-  /*sonic+motor*/
-pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
-pinMode(echoPin, INPUT); // Sets the echoPin as an Input
-Serial.begin(9600); // Starts the serial communication
+pinMode(trig, OUTPUT); // pin นี้เป็นตัวส่งคลื่น
+pinMode(echo, INPUT); // pin นี้เป็นตัวรับคลื่นที่สะท้อนกลับมา
+Serial.begin(115200); // ประกาศเริ่ม Serial Monitor เพื่อเช็คค่าม หรือสถานะบางค่า
+lcd.begin();
+Wire.begin();
+RTC.begin();
+
+// มอเตอร์ A ตั้งเป็น pin ปล่อยไฟ
 pinMode(backwardA,OUTPUT);
 pinMode(forwardA,OUTPUT);
 pinMode(speedPinA,OUTPUT);
 pinMode(backwardB,OUTPUT);
 pinMode(forwardB,OUTPUT);
 pinMode(speedPinB,OUTPUT);
-  /*sonic+motor*/
- 
 
-  /*buzzer setup */
-  pinMode(buzzer, OUTPUT);
-  /*buzzer setup */
- 
-  lcd.begin();
-  Serial.begin(9600);
-  Wire.begin();
-  RTC.begin();
-  //RTC.adjust(DateTime(__DATE__, __TIME__)); /*เอาไว้ตั้งเวลาใหม่*/
+// ตั้ง pin buzzer เป็นตัวปล่อยไฟ
+pinMode(buzzer, OUTPUT);
 
-  if (! RTC.isrunning()) {
-    Serial.println("RTC is NOT running!");
-    // following line sets the RTC to the date & time this sketch was compiled
-    RTC.adjust(DateTime(__DATE__, __TIME__));
-  }
+//RTC.adjust(DateTime(__DATE__, __TIME__)); //ใช้เพื่อตั้งเวลาใหม่ พอตั้งเสร็จให้ Code ลงบอร์ด แล้วปิดคำสั่งนี้แล้วอัพ code อีกครั้ง
 
-  DateTime now = RTC.now();
-  /* ตั้งเวลา ในตัวอย่างนี้ เซตค่าเป็นเวลา 23:09 ถ้าถึงเวลานี้จะให้ทำงานที่ฟังก์ชัน */
-    RTC.setAlarm1Simple(18, 9);
-   if (RTC.checkIfAlarm(1)) {
-   Serial.println("Alarm Triggered");
-   }
-  RTC.setAlarm1Simple(18, 9);
-
-  RTC.turnOnAlarm(1);
-
-  if (RTC.checkAlarmEnabled(1)) {
-    Serial.println("Alarm Enabled");
-  }
-
+DateTime now = RTC.now();
+RTC.setAlarm1Simple(21, 30); // ตั้งเวลาปลุก(ชั่วโมง, นาที)
+RTC.turnOnAlarm(1); // เปิด-ปิด นาฬิกาปลุก (1: เปิด, 2: ปิด)
 }
 
 void loop () {
-  DateTime now = RTC.now();
-  timer(now);
+  DateTime now = RTC.now(); 
+  timer(now); // แสดงเวลาและวันที่
+
+  //ถ้าถึงเวลาปลุก ทำ condition นี้
   
   if (RTC.checkIfAlarm(1)){
-    while(1){
+    while(1){ //ทำไปเรื่อยๆจนกว่าจะยอมลุกมาปิดนาฬิกา 
       DateTime now = RTC.now();
-  timer(now);
-    /*buzzer*/
-  tone(buzzer, 1000);
-  delay(500);
-  noTone(buzzer);
-  tone(buzzer, 500);
-  delay(500);
-  noTone(buzzer);
-  tone(buzzer, 700);
-  delay(500);
-  noTone(buzzer);
-  tone(buzzer, 1000);
-  delay(500);
-  noTone(buzzer);
-  /*buzzer*/
-      /*sonic+motor*/
-  // Clears the trigPin
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
-  // Sets the trigPin on HIGH state for 10 micro seconds
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-  // Reads the echoPin, returns the sound wave travel time in microseconds
-  duration = pulseIn(echoPin, HIGH);
-  // Calculating the distance
-  distance= duration*0.034/2;
-  Serial.print(distance);
-    /*sonic+motor*/
-    Serial.print("a");
-    if (distance > 60)
-  {
-  // Motor A
+      timer(now);
+      tone(buzzer, 1000);
+      delay(500);
+      noTone(buzzer);
+      tone(buzzer, 500);
+      delay(500);
+      noTone(buzzer);
+      tone(buzzer, 700);
+      delay(500);
+      noTone(buzzer);
+      tone(buzzer, 1000);
+      delay(500);
+      noTone(buzzer);
 
-    analogWrite(speedPinA, 255);
-    digitalWrite(backwardA, LOW);
-    digitalWrite(forwardA, HIGH);
+      //กำหนดความยาวคลื่น
+
+      digitalWrite(trig, LOW);
+      delayMicroseconds(2);
+      digitalWrite(trig, HIGH);
+      delayMicroseconds(10);
+      digitalWrite(trig, LOW);
+      duration = pulseIn(echo, HIGH); // คำนวณช่วงเวลาไป-กลับของคลื่น
+      distance= duration*0.034/2; // นำช่วงเวลามาคำนวณระยะทาง
+
+        if (distance > 60) // ถ้าด้านหน้ามีระยะทางมากพอ ให้วิ่งไปต่อ
+      {
+
+      // ล้อ A
+        analogWrite(speedPinA, 255);
+        digitalWrite(backwardA, LOW);
+        digitalWrite(forwardA, HIGH);
 
 
-  // Motor B
+      // ล้อ B
+        analogWrite(speedPinB, 255);
+        digitalWrite(backwardB, LOW);
+        digitalWrite(forwardB, HIGH);
+      }
 
-    analogWrite(speedPinB, 255);
-    digitalWrite(backwardB, LOW);
-    digitalWrite(forwardB, HIGH);
-  }
+       if (distance <= 60) // ถ้าด้านหน้ามีระยะทางไม่พอ ให้หมุนทางทางใหม่
+      {
 
-   if (distance <= 60)
-  {
-      // Motor A
-
-    analogWrite(speedPinA, 255);
-    digitalWrite(backwardA, HIGH);
-    digitalWrite(forwardA, LOW);
+       // ล้อ A
+        analogWrite(speedPinA, 255);
+        digitalWrite(backwardA, HIGH);
+        digitalWrite(forwardA, LOW);
 
 
-  // Motor B
+      // ล้อ B
+        analogWrite(speedPinB, 255);
+        digitalWrite(backwardB, LOW);
+        digitalWrite(forwardB, HIGH);
+      }
 
-    analogWrite(speedPinB, 255);
-    digitalWrite(backwardB, LOW);
-    digitalWrite(forwardB, HIGH);
-  }
     delay(400);
 }
 }
 }
+
+// ฟังก์ชั่น print เวลาและวันที่
 
 void timer(DateTime now){
   lcd.setCursor(0,0);

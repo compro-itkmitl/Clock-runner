@@ -32,7 +32,11 @@ int backwardB = 4;
 int forwardB = 5;
 int speedPinB = 7;
 
-/*//////////////////////////*/
+/*///////////////////*/
+//ลำโพง
+/*///////////////////*/
+const int buzzer = 13;
+void timer(DateTime now);
 
 
 void setup () {
@@ -48,6 +52,11 @@ pinMode(forwardB,OUTPUT);
 pinMode(speedPinB,OUTPUT);
   /*sonic+motor*/
  
+
+  /*buzzer setup */
+  pinMode(buzzer, OUTPUT);
+  /*buzzer setup */
+ 
   lcd.begin();
   Serial.begin(9600);
   Wire.begin();
@@ -62,11 +71,11 @@ pinMode(speedPinB,OUTPUT);
 
   DateTime now = RTC.now();
   /* ตั้งเวลา ในตัวอย่างนี้ เซตค่าเป็นเวลา 23:09 ถ้าถึงเวลานี้จะให้ทำงานที่ฟังก์ชัน */
-    RTC.setAlarm1Simple(21, 53);
+    RTC.setAlarm1Simple(18, 9);
    if (RTC.checkIfAlarm(1)) {
    Serial.println("Alarm Triggered");
    }
-  RTC.setAlarm1Simple(21, 53);
+  RTC.setAlarm1Simple(18, 9);
 
   RTC.turnOnAlarm(1);
 
@@ -78,38 +87,26 @@ pinMode(speedPinB,OUTPUT);
 
 void loop () {
   DateTime now = RTC.now();
-   lcd.setCursor(0,0);
-  lcd.print("Date: ");
-  lcd.print(now.year(), DEC);
-  lcd.print('/');
-  lcd.print(now.month(), DEC);
-  lcd.print('/');
-  lcd.print(now.day(), DEC);
-  lcd.setCursor(0,1);
-  lcd.print("Time: ");
-  lcd.print(now.hour(), DEC);
-  lcd.print(':');
-  lcd.print(now.minute(), DEC);
-  lcd.print(':');
-  lcd.print(now.second(), DEC);
+  timer(now);
   
   if (RTC.checkIfAlarm(1)){
     while(1){
       DateTime now = RTC.now();
-  lcd.setCursor(0,0);
-  lcd.print("Date: ");
-  lcd.print(now.year(), DEC);
-  lcd.print('/');
-  lcd.print(now.month(), DEC);
-  lcd.print('/');
-  lcd.print(now.day(), DEC);
-  lcd.setCursor(0,1);
-  lcd.print("Time: ");
-  lcd.print(now.hour(), DEC);
-  lcd.print(':');
-  lcd.print(now.minute(), DEC);
-  lcd.print(':');
-  lcd.print(now.second(), DEC);
+  timer(now);
+    /*buzzer*/
+  tone(buzzer, 1000);
+  delay(500);
+  noTone(buzzer);
+  tone(buzzer, 500);
+  delay(500);
+  noTone(buzzer);
+  tone(buzzer, 700);
+  delay(500);
+  noTone(buzzer);
+  tone(buzzer, 1000);
+  delay(500);
+  noTone(buzzer);
+  /*buzzer*/
       /*sonic+motor*/
   // Clears the trigPin
   digitalWrite(trigPin, LOW);
@@ -160,3 +157,21 @@ void loop () {
 }
 }
 }
+
+void timer(DateTime now){
+  lcd.setCursor(0,0);
+  lcd.print("Date: ");
+  lcd.print(now.year(), DEC);
+  lcd.print('/');
+  lcd.print(now.month(), DEC);
+  lcd.print('/');
+  lcd.print(now.day(), DEC);
+  lcd.setCursor(0,1);
+  lcd.print("Time: ");
+  lcd.print(now.hour(), DEC);
+  lcd.print(':');
+  lcd.print(now.minute(), DEC);
+  lcd.print(':');
+  lcd.print(now.second(), DEC);
+}
+

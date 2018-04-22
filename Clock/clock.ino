@@ -7,7 +7,8 @@ RTC_DS3231 RTC;
 
 // ตั้งค่าตัวแปล buzzer เป็ น pin 13
 
-const int buzzer = 13;
+const int buzzer1 = 13;
+const int buzzer2 = 12;
 
 // เซ็ต pin ultrasound
 
@@ -46,12 +47,13 @@ pinMode(forwardB,OUTPUT);
 pinMode(speedPinB,OUTPUT);
 
 // ตั้ง pin buzzer เป็นตัวปล่อยไฟ
-pinMode(buzzer, OUTPUT);
+pinMode(buzzer1, OUTPUT);
+pinMode(buzzer2, OUTPUT);
 
 //RTC.adjust(DateTime(__DATE__, __TIME__)); //ใช้เพื่อตั้งเวลาใหม่ พอตั้งเสร็จให้ Code ลงบอร์ด แล้วปิดคำสั่งนี้แล้วอัพ code อีกครั้ง
 
 DateTime now = RTC.now();
-RTC.setAlarm1Simple(21, 30); // ตั้งเวลาปลุก(ชั่วโมง, นาที)
+RTC.setAlarm1Simple(23, 46); // ตั้งเวลาปลุก(ชั่วโมง, นาที)
 RTC.turnOnAlarm(1); // เปิด-ปิด นาฬิกาปลุก (1: เปิด, 2: ปิด)
 }
 
@@ -65,19 +67,19 @@ void loop () {
     while(1){ //ทำไปเรื่อยๆจนกว่าจะยอมลุกมาปิดนาฬิกา 
       DateTime now = RTC.now();
       timer(now);
-      tone(buzzer, 1000);
-      delay(500);
-      noTone(buzzer);
-      tone(buzzer, 500);
-      delay(500);
-      noTone(buzzer);
-      tone(buzzer, 700);
-      delay(500);
-      noTone(buzzer);
-      tone(buzzer, 1000);
-      delay(500);
-      noTone(buzzer);
-
+      tone(buzzer1, 1000);
+      tone(buzzer2, 1000);
+      //digitalWrite(buzzer1, LOW);
+      //noTone(buzzer2);
+      //digitalWrite(buzzer1, HIGH);
+      //tone(buzzer2, 500);
+      //digitalWrite(buzzer1, LOW);
+      //noTone(buzzer2);
+      //digitalWrite(buzzer1, HIGH);
+      //tone(buzzer2, 700);
+      //digitalWrite(buzzer1, LOW);
+      //noTone(buzzer2);
+      
       //กำหนดความยาวคลื่น
 
       digitalWrite(trig, LOW);

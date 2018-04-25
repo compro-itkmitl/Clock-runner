@@ -18,7 +18,6 @@
 ## Our tool
 * Hardware
     * Arduino Uno
-    * NodeMCU
     * Ultrasonic Module
     * Buzzer
     * Real time clock Module

@@ -7,8 +7,9 @@ RTC_DS3231 RTC;
 
 // ตั้งค่าตัวแปล buzzer เป็น pin 12,13
 
-const int buzzer1 = 13;
 const int buzzer2 = 12;
+const int buzzer1 = 13;
+
 // เซ็ต pin ultrasound
 
 const int trig = 9; 
